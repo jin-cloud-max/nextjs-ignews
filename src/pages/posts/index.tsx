@@ -5,6 +5,7 @@ import Prismic from '@prismicio/client'
 import { RichText } from 'prismic-dom'
 
 import styles from './styles.module.scss'
+import Link from 'next/link'
 
 interface Posts {
   slug: string;
@@ -27,11 +28,13 @@ export default function Posts({ posts }: PostsPops) {
       <main className={styles.container}>
         <div className={styles.posts}>
           {posts.map(post => (
-            <a href="/" key={post.slug}>
-              <time>{post.updateAt}</time>
-              <strong>{post.title}</strong>
-              <p>{post.excerpt}</p>
-            </a>
+            <Link href={`/posts/${post.slug}`} key={post.slug}>
+              <a>
+                <time>{post.updateAt}</time>
+                <strong>{post.title}</strong>
+                <p>{post.excerpt}</p>
+              </a>
+            </Link>
           ))}
         </div>
       </main>
@@ -41,6 +44,7 @@ export default function Posts({ posts }: PostsPops) {
 
 export const getStaticProps: GetStaticProps = async () => {
   const prismic = getPrismicClient()
+  
 
   const response = await prismic.query([
     Prismic.predicates.at('document.type', 'posts')
@@ -65,6 +69,7 @@ export const getStaticProps: GetStaticProps = async () => {
   return {
     props: {
       posts
-    }
+    },
+    revalidate: 60 * 30 // 30 minutes
   }
 }
